@@ -1,25 +1,251 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import "./main.css";
 
-function App() {
+const App = () => {
+  const [students, setStudents] = useState([]);
+  const [newStudent, setNewStudent] = useState({
+    firstName: "",
+    lastName: "",
+    age: "",
+    gender: "",
+    grade: "",
+    address: "",
+    contactNumber: "",
+  });
+  const [selectedStudent, setSelectedStudent] = useState(null);
+  const [toView, setToView] = useState({
+    firstName: "",
+    lastName: "",
+    age: "",
+    gender: "",
+    grade: "",
+    address: "",
+    contactNumber: "",
+  });
+  const [openView, setOpenview] = useState(false);
+
+  useEffect(() => {
+    fetchStudents();
+  }, []);
+
+  const fetchStudents = () => {
+    axios
+      .get("http://127.0.0.1:8000/api/students/")
+      .then((response) => {
+        setStudents(response.data);
+      })
+      .catch((error) => console.error(error));
+  };
+
+  const handleInputChange = (e) => {
+    setNewStudent({ ...newStudent, [e.target.name]: e.target.value });
+  };
+
+  const handleAddStudent = () => {
+    axios
+      .post("http://127.0.0.1:8000/api/students/", newStudent)
+      .then((response) => {
+        setStudents([...students, response.data]);
+        setNewStudent({
+          firstName: "",
+          lastName: "",
+          age: "",
+          gender: "",
+          grade: "",
+          address: "",
+          contactNumber: "",
+        });
+      })
+      .catch((error) => console.error(error));
+  };
+
+  const handleViewClick = async (id) => {
+    const response = await axios.get(
+      `http://127.0.0.1:8000/api/students/${id}/`
+    );
+    setToView(response.data);
+    setOpenview(true);
+  };
+
+  const handleEditClick = (student) => {
+    setSelectedStudent(student);
+    setNewStudent(student);
+  };
+
+  const handleUpdateStudent = (id) => {
+    axios
+      .put(
+        `http://127.0.0.1:8000/api/students/${selectedStudent.id}/`,
+        newStudent
+      )
+      .then((response) => {
+        fetchStudents();
+        setNewStudent({
+          firstName: "",
+          lastName: "",
+          age: "",
+          gender: "",
+          grade: "",
+          address: "",
+          contactNumber: "",
+        });
+      })
+      .catch((error) => console.error(error));
+  };
+
+  const handleCancelUpdateStudent = () => {
+    setSelectedStudent(null);
+    setNewStudent({
+      firstName: "",
+      lastName: "",
+      age: "",
+      gender: "",
+      grade: "",
+      address: "",
+      contactNumber: "",
+    });
+  };
+
+  const handleDeleteStudent = (id) => {
+    axios
+      .delete(`http://127.0.0.1:8000/api/students/${id}/`)
+      .then((response) => {
+        fetchStudents();
+        setNewStudent({
+          firstName: "",
+          lastName: "",
+          age: "",
+          gender: "",
+          grade: "",
+          address: "",
+          contactNumber: "",
+        });
+      })
+      .catch((error) => console.error(error));
+  };
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="app-container">
+      <h1>Student Management System</h1>
+      {/* Form Container */}
+      <div className="form-container">
+        <div className="form-inputs">
+          <input
+            type="text"
+            name="firstName"
+            placeholder="First name"
+            value={newStudent.firstName}
+            onChange={handleInputChange}
+          />
+          <input
+            type="text"
+            name="lastName"
+            placeholder="Last name"
+            value={newStudent.lastName}
+            onChange={handleInputChange}
+          />
+          <input
+            type="text"
+            name="age"
+            placeholder="Age"
+            value={newStudent.age}
+            onChange={handleInputChange}
+          />
+          <input
+            type="text"
+            name="gender"
+            placeholder="Gender"
+            value={newStudent.gender}
+            onChange={handleInputChange}
+          />
+          <input
+            type="text"
+            name="grade"
+            placeholder="Grade"
+            value={newStudent.grade}
+            onChange={handleInputChange}
+          />
+          <textarea
+            name="address"
+            placeholder="Address"
+            value={newStudent.address}
+            onChange={handleInputChange}
+          />
+          <input
+            type="text"
+            name="contactNumber"
+            placeholder="Contact Number"
+            value={newStudent.contactNumber}
+            onChange={handleInputChange}
+          />
+
+          <div className="form-buttons">
+            {selectedStudent ? (
+              <>
+                <button onClick={handleUpdateStudent}>Update</button>
+                <button onClick={handleCancelUpdateStudent}>Cancel</button>
+              </>
+            ) : (
+              <button onClick={handleAddStudent}>Add New Student</button>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Student List */}
+      <ul className="student-list">
+        {students.map((student) => (
+          <li key={student.id}>
+            <div>
+              <strong>
+                {student.firstName} {student.lastName}
+              </strong>
+            </div>
+            <div className="actions">
+              <button
+                className="view"
+                onClick={() => handleViewClick(student.id)}
+              >
+                View
+              </button>
+              <button className="edit" onClick={() => handleEditClick(student)}>
+                Edit
+              </button>
+              <button
+                className="delete"
+                onClick={() => handleDeleteStudent(student.id)}
+              >
+                Delete
+              </button>
+            </div>
+          </li>
+        ))}
+      </ul>
+
+      {/* Single View */}
+      {openView && (
+        <>
+          <div className="outer-box">
+            <strong>
+              {toView.firstName} {toView.lastName}
+            </strong>
+            <br />
+            <span>Age : {toView.age}</span>
+            <br />
+            <span>Gender : {toView.gender}</span>
+            <br />
+            <span>Grade : {toView.grade}</span>
+            <br />
+            <span>Address : {toView.address}</span>
+            <br />
+            <span>Contact Line : {toView.contactNumber}</span>
+            <br />
+          </div>
+          <button onClick={() => setOpenview(false)}>Close</button>
+        </>
+      )}
     </div>
   );
-}
+};
 
 export default App;
