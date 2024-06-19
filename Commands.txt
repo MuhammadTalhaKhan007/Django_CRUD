@@ -8,17 +8,35 @@ Install Django:
 py -m pip install Django
 
 Create Project:
-django-admin startproject <project-name>
+django-admin startproject backend
 
 Run Django Project:
 cd <project-name>
 py manage.py runserver
 
 Create App:
-py manage.py startapp <application-name>
+py manage.py startapp api
+
+Migrate Models: (1)
+python manage.py makemigrations
+
+Migrate All Models: (2)
+python manage.py migrate 
+
+Create Super User:
+python manage.py createsuperuser
 
 Views:
 Django views are Python functions that takes http requests and returns http response, like HTML documents.
+
+Serializer:
+Serializer is used to convert complex datatypes into native python datatypes to ease communication among APIs.
+
+Generics:
+Generics in rest framework provides abstraction that is sufficient for everything.
+
+
+
 
 
 
