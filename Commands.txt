@@ -1,0 +1,26 @@
+Create Virtual Environment:
+py -m venv <virtual-environment-name>
+
+Activate Virtual Environment:
+<virtual-environment-name>\Scripts\activate.bat
+
+Install Django:
+py -m pip install Django
+
+Create Project:
+django-admin startproject <project-name>
+
+Run Django Project:
+cd <project-name>
+py manage.py runserver
+
+Create App:
+py manage.py startapp <application-name>
+
+Views:
+Django views are Python functions that takes http requests and returns http response, like HTML documents.
+
+
+
+
+
